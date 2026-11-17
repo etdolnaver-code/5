@@ -5,7 +5,6 @@ export const emptyBasic: Basic = {
   endDate: '',
   company: '',
   name: '',
-  phone: '',
   team: '',
   contact: '',
   purpose: '공사·설치',
@@ -56,7 +55,7 @@ export function BasicFields({
           onChange={(e) => set('company', e.target.value)}
         />
       </label>
-      <label>
+      <label className="span-2">
         성명 <b>*</b>
         <input
           autoComplete="name"
@@ -65,29 +64,6 @@ export function BasicFields({
           placeholder="홍길동"
           value={value.name}
           onChange={(e) => set('name', e.target.value)}
-        />
-      </label>
-      <label>
-        연락처 <b>*</b>
-        <input
-          autoComplete="tel"
-          type="tel"
-          inputMode="tel"
-          required
-          maxLength={13}
-          placeholder="010-0000-0000"
-          value={value.phone}
-          onChange={(e) => {
-            const s = e.target.value.replace(/\D/g, '').slice(0, 11);
-            set(
-              'phone',
-              s.length > 7
-                ? s.slice(0, 3) + '-' + s.slice(3, 7) + '-' + s.slice(7)
-                : s.length > 3
-                  ? s.slice(0, 3) + '-' + s.slice(3)
-                  : s,
-            );
-          }}
         />
       </label>
       <div className="field-divider span-2">

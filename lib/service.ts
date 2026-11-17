@@ -10,6 +10,7 @@ import {
   passwordHash,
 } from './db';
 import {
+  Basic,
   Registration,
   Video,
   videoSchema,
@@ -84,6 +85,15 @@ export function registration(id: string) {
   if (!row) fail(404, '등록정보가 없습니다.');
   return decrypt<Registration>(row.data);
 }
+// Legacy encrypted records retain their phone values, but API responses do not.
+function withoutPhone(basic: Basic): Basic {
+  const result = { ...basic };
+  delete (result as Basic & { phone?: string }).phone;
+  return result;
+}
+function publicRegistration(r: Registration): Registration {
+  return { ...r, basic: withoutPhone(r.basic), originalBasic: withoutPhone(r.originalBasic) };
+}
 function filtered(req: NextRequest) {
   const p = req.nextUrl.searchParams;
   const from = p.get('from') || '',
@@ -102,7 +112,7 @@ function filtered(req: NextRequest) {
       (!from || day >= from) &&
       (!to || day <= to) &&
       (!company || r.basic.company.toLowerCase().includes(company)) &&
-      (!q || [r.basic.name, r.basic.phone, r.receipt].some((s) => s.toLowerCase().includes(q)))
+      (!q || [r.basic.name, r.receipt].some((s) => s.toLowerCase().includes(q)))
     );
   });
 }
@@ -138,7 +148,7 @@ function listItem(r: Registration) {
     id: r.id,
     receipt: r.receipt,
     createdAt: r.createdAt,
-    basic: r.basic,
+    basic: withoutPhone(r.basic),
     educationAttested: r.educationAttested,
     educationVerified: r.educationVerified,
     version: r.version,
@@ -194,7 +204,7 @@ export async function get(req: NextRequest, path: string[]) {
   if (path[0] === 'admin' && path[1] === 'registrations' && path.length === 3) {
     const r = registration(path[2]);
     audit(a.id, 'VIEW_REGISTRATION', r.id);
-    return json({ registration: r });
+    return json({ registration: publicRegistration(r) });
   }
   if (route === 'admin/videos') return json({ videos: videos(true) });
   if (route === 'admin/audit') {
@@ -215,7 +225,6 @@ export async function get(req: NextRequest, path: string[]) {
       '등록일',
       '회사명',
       '성명',
-      '연락처',
       '작업시작일',
       '작업종료일',
       '발주팀',
@@ -230,7 +239,6 @@ export async function get(req: NextRequest, path: string[]) {
       r.createdAt,
       r.basic.company,
       r.basic.name,
-      r.basic.phone,
       r.basic.startDate,
       r.basic.endDate,
       r.basic.team,
@@ -474,7 +482,7 @@ export async function mutate(req: NextRequest, path: string[]) {
             400,
             '본인이 확인한 교육정보는 수정할 수 없습니다. 별도의 관리자 확인 기능을 사용하세요.',
           );
-        r.basic = v.basic;
+        r.basic = { ...r.basic, ...v.basic };
         r.version++;
         db()
           .prepare('UPDATE registrations SET start_date=?,end_date=?,data=? WHERE id=?')
