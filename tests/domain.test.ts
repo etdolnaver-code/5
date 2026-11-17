@@ -12,6 +12,7 @@ const basic = {
   endDate: '2026-10-16',
   company: '테스트업체',
   name: '시험작업자',
+  phone: '010-1234-5678',
   team: '안전팀',
   contact: '시험담당자',
   purpose: '점검',
@@ -20,11 +21,11 @@ const basic = {
   educationDate: '2099-01-01',
   educationCertificateContact: '',
 };
-test('연락처 없이 기본정보와 날짜 검증', () => {
+test('기본정보와 연락처/날짜 검증', () => {
   assert.ok(refinedBasic.safeParse(basic).success);
   assert.equal(refinedBasic.safeParse({ ...basic, endDate: '2026-10-14' }).success, false);
   assert.equal(refinedBasic.safeParse({ ...basic, startDate: '2026-02-30' }).success, false);
-  assert.equal('phone' in refinedBasic.parse({ ...basic, phone: '010-1234-5678' }), false);
+  assert.equal(refinedBasic.safeParse({ ...basic, phone: 'abc' }).success, false);
   assert.equal(refinedBasic.safeParse({ ...basic, purpose: '기타' }).success, false);
 });
 test('교육 이수일과 본인 확인 검증', () => {

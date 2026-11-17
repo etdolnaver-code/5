@@ -349,10 +349,10 @@ export function Visitor() {
                   <h3>개인정보 수집·이용 안내</h3>
                   <dl>
                     <dt>수집·이용 목적</dt>
-                    <dd>신원 확인, 출입관리, 안전교육 이력 및 작업이력 관리</dd>
+                    <dd>신원 확인, 출입관리, 안전교육 이력 및 작업이력 관리, 비상연락</dd>
                     <dt>수집 항목</dt>
                     <dd>
-                      회사명, 성명, 작업기간, 방문 목적, 작업발주 담당자, 교육 이력,
+                      회사명, 성명, 연락처, 작업기간, 방문 목적, 작업발주 담당자, 교육 이력,
                       안전서약 기록 및 전자서명
                     </dd>
                     <dt>보유기간</dt>
@@ -409,6 +409,8 @@ export function Visitor() {
                   <dd>
                     {basic.company} · {basic.name}
                   </dd>
+                  <dt>연락처</dt>
+                  <dd>{basic.phone}</dd>
                   <dt>작업기간</dt>
                   <dd>
                     {basic.startDate} ~ {basic.endDate}
